@@ -1,0 +1,128 @@
+{
+  "totals": [
+    {
+      "rows": 15,
+      "units": 25.0,
+      "revenue": 2534.39
+    }
+  ],
+  "daily": [
+    {
+      "day": "2026-01-15 00:00:00",
+      "units": 19.0,
+      "revenue": 1707.42
+    },
+    {
+      "day": "2026-01-16 00:00:00",
+      "units": 6.0,
+      "revenue": 826.97
+    }
+  ],
+  "category": [
+    {
+      "category": "Electronics",
+      "units": 12.0,
+      "revenue": 1099.44
+    },
+    {
+      "category": "Furniture",
+      "units": 4.0,
+      "revenue": 717.0
+    },
+    {
+      "category": "Audio",
+      "units": 3.0,
+      "revenue": 539.97
+    },
+    {
+      "category": "Lighting",
+      "units": 4.0,
+      "revenue": 98.0
+    },
+    {
+      "category": "Accessories",
+      "units": 2.0,
+      "revenue": 79.98
+    }
+  ],
+  "top_products": [
+    {
+      "product_id": 104,
+      "product_name": "27-inch 4K UHD Monitor",
+      "units": 2.0,
+      "revenue": 699.98
+    },
+    {
+      "product_id": 105,
+      "product_name": "Ergonomic Mesh Chair",
+      "units": 3.0,
+      "revenue": 597.0
+    },
+    {
+      "product_id": 107,
+      "product_name": "Active Noise Cancelling Headphones",
+      "units": 3.0,
+      "revenue": 539.97
+    },
+    {
+      "product_id": 103,
+      "product_name": "USB-C Multiport Hub",
+      "units": 5.0,
+      "revenue": 170.0
+    },
+    {
+      "product_id": 106,
+      "product_name": "Standing Desk Converter",
+      "units": 1.0,
+      "revenue": 120.0
+    },
+    {
+      "product_id": 109,
+      "product_name": "Smart Dimmable Desk Lamp",
+      "units": 4.0,
+      "revenue": 98.0
+    },
+    {
+      "product_id": 101,
+      "product_name": "Wireless Ergonomic Mouse",
+      "units": 3.0,
+      "revenue": 89.97
+    },
+    {
+      "product_id": 102,
+      "product_name": "Mechanical Gaming Keyboard",
+      "units": 1.0,
+      "revenue": 89.5
+    },
+    {
+      "product_id": 110,
+      "product_name": "Adjustable Aluminum Laptop Stand",
+      "units": 2.0,
+      "revenue": 79.98
+    },
+    {
+      "product_id": 108,
+      "product_name": "1080p Streaming Webcam",
+      "units": 1.0,
+      "revenue": 49.99
+    }
+  ],
+  "low_stock": [
+    {
+      "product_id": 103,
+      "current_stock": 12,
+      "reorder_level": 30
+    },
+    {
+      "product_id": 105,
+      "current_stock": 8,
+      "reorder_level": 15
+    },
+    {
+      "product_id": 107,
+      "current_stock": 5,
+      "reorder_level": 25
+    }
+  ],
+  "run_id": "run-c2f0c193"
+}
