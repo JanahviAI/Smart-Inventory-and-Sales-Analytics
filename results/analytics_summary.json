@@ -1,0 +1,94 @@
+{
+  "run_id": "test-at01-clean",
+  "timestamp": "2026-10-15T19:06:29Z",
+  "metrics": {
+    "total_orders": 15,
+    "total_units": 25,
+    "total_revenue": 2534.39,
+    "category_breakdown": [
+      {
+        "category": "Electronics",
+        "units_sold": 12.0,
+        "revenue": 1099.44
+      },
+      {
+        "category": "Furniture",
+        "units_sold": 4.0,
+        "revenue": 717.0
+      },
+      {
+        "category": "Audio",
+        "units_sold": 3.0,
+        "revenue": 539.97
+      },
+      {
+        "category": "Lighting",
+        "units_sold": 4.0,
+        "revenue": 98.0
+      },
+      {
+        "category": "Accessories",
+        "units_sold": 2.0,
+        "revenue": 79.98
+      }
+    ],
+    "top_products": [
+      {
+        "product_id": 104,
+        "product_name": "27-inch 4K UHD Monitor",
+        "category": "Electronics",
+        "units_sold": 2.0,
+        "total_revenue": 699.98
+      },
+      {
+        "product_id": 105,
+        "product_name": "Ergonomic Mesh Chair",
+        "category": "Furniture",
+        "units_sold": 3.0,
+        "total_revenue": 597.0
+      },
+      {
+        "product_id": 107,
+        "product_name": "Active Noise Cancelling Headphones",
+        "category": "Audio",
+        "units_sold": 3.0,
+        "total_revenue": 539.97
+      },
+      {
+        "product_id": 103,
+        "product_name": "USB-C Multiport Hub",
+        "category": "Electronics",
+        "units_sold": 5.0,
+        "total_revenue": 170.0
+      },
+      {
+        "product_id": 106,
+        "product_name": "Standing Desk Converter",
+        "category": "Furniture",
+        "units_sold": 1.0,
+        "total_revenue": 120.0
+      }
+    ],
+    "low_stock_items": [
+      {
+        "product_id": 107,
+        "product_name": "Active Noise Cancelling Headphones",
+        "current_stock": 5,
+        "reorder_level": 25
+      },
+      {
+        "product_id": 105,
+        "product_name": "Ergonomic Mesh Chair",
+        "current_stock": 8,
+        "reorder_level": 15
+      },
+      {
+        "product_id": 103,
+        "product_name": "USB-C Multiport Hub",
+        "current_stock": 12,
+        "reorder_level": 30
+      }
+    ],
+    "low_stock_count": 3
+  }
+}
