@@ -286,3 +286,4 @@ Generate actual artifacts where applicable:
 Capture actual NiFi, Airflow, dashboard, API, and SQL evidence. For every reported metric, state the data, script/command, and conditions. If not run, mark it pending.
 
 The project is ready to present when a teammate can follow the README from a fresh clone, run the end-to-end demo, verify PostgreSQL data, see results in the dashboard, trigger at least one failure case, and explain every major handoff.
+

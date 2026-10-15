@@ -1,0 +1,12 @@
+product_id,product_name,category,supplier_id
+101,Wireless Ergonomic Mouse,Electronics,SUPP-001
+102,Mechanical Gaming Keyboard,Electronics,SUPP-001
+103,USB-C Multiport Hub,Electronics,SUPP-002
+104,27-inch 4K UHD Monitor,Electronics,SUPP-003
+105,Ergonomic Mesh Chair,Furniture,SUPP-004
+106,Standing Desk Converter,Furniture,SUPP-004
+107,Active Noise Cancelling Headphones,Audio,SUPP-002
+108,1080p Streaming Webcam,Electronics,SUPP-003
+109,Smart Dimmable Desk Lamp,Lighting,SUPP-005
+110,Adjustable Aluminum Laptop Stand,Accessories,SUPP-005
+
