@@ -1,13 +1,13 @@
 {
-  "run_id": "batch-demo-run-001",
-  "status": "partial",
-  "timestamp": "2026-10-15T17:31:05.055820Z",
-  "duration_seconds": 0.0171,
+  "run_id": "test-run-reconcile-011",
+  "status": "success",
+  "timestamp": "2026-10-15T19:06:42.379029Z",
+  "duration_seconds": 0.0084,
   "summary": {
-    "total_staged": 38,
+    "total_staged": 35,
     "total_accepted": 35,
-    "total_rejected": 3,
-    "pass_rate_percentage": 92.11
+    "total_rejected": 0,
+    "pass_rate_percentage": 100.0
   },
   "table_breakdown": {
     "products": {
@@ -21,14 +21,10 @@
       "rejected": 0
     },
     "sales": {
-      "staged": 18,
+      "staged": 15,
       "accepted": 15,
-      "rejected": 3
+      "rejected": 0
     }
   },
-  "rejections_by_reason": {
-    "NULL_REQUIRED_FIELD": 1,
-    "NON_POSITIVE_QUANTITY": 1,
-    "UNKNOWN_FOREIGN_KEY": 1
-  }
+  "rejections_by_reason": {}
 }

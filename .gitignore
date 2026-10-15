@@ -49,3 +49,7 @@ Thumbs.db
 *.sqlite3
 pg_data/
 
+# Data landing dynamic files
+data/landing/*.csv
+data/landing/.tmp/
+

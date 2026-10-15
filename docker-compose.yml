@@ -1,0 +1,209 @@
+version: "3.8"
+
+networks:
+  platform-net:
+    driver: bridge
+
+volumes:
+  pgdata:
+    driver: local
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. PostgreSQL (System of Record & Canonical Database)
+  # ----------------------------------------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: retail-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-inventory_db}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-inventory_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - platform-net
+
+  # ----------------------------------------------------------------------------
+  # 2. Apache NiFi (Source to Landing Ingestion Boundary) - Person 1
+  # ----------------------------------------------------------------------------
+  nifi:
+    image: apache/nifi:1.25.0
+    container_name: retail-nifi
+    restart: unless-stopped
+    ports:
+      - "8443:8443"
+    environment:
+      NIFI_WEB_HTTPS_PORT: 8443
+      SINGLE_USER_CREDENTIALS_USERNAME: ${NIFI_SECURITY_USERNAME:-admin}
+      SINGLE_USER_CREDENTIALS_PASSWORD: ${NIFI_SECURITY_PASSWORD:-Antigravity2026Admin!}
+    volumes:
+      - ./data/source:/opt/nifi/data/source:ro
+      - ./data/landing:/opt/nifi/data/landing:rw
+      - ./nifi:/opt/nifi/flow-templates:ro
+    healthcheck:
+      test: ["CMD-SHELL", "curl -k -I https://localhost:8443/nifi || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - platform-net
+
+  # ----------------------------------------------------------------------------
+  # 3. Apache Airflow Orchestration (Person 1)
+  # ----------------------------------------------------------------------------
+  airflow-init:
+    image: apache/airflow:2.8.2-python3.11
+    container_name: retail-airflow-init
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-inventory_db}
+    command: >
+      bash -c "airflow db migrate &&
+      airflow users create --role Admin --username admin --password admin --firstname Admin --lastname User --email admin@example.com || true"
+    networks:
+      - platform-net
+
+  airflow-webserver:
+    image: apache/airflow:2.8.2-python3.11
+    container_name: retail-airflow-webserver
+    restart: unless-stopped
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "False"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-inventory_db}
+      PYTHONPATH: /opt/airflow:/opt/airflow/src
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-inventory_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - ./data:/opt/airflow/data
+      - ./results:/opt/airflow/results
+      - ./sql:/opt/airflow/sql
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - platform-net
+
+  airflow-scheduler:
+    image: apache/airflow:2.8.2-python3.11
+    container_name: retail-airflow-scheduler
+    restart: unless-stopped
+    depends_on:
+      airflow-init:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+    environment:
+      AIRFLOW__CORE__LOAD_EXAMPLES: "False"
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-inventory_db}
+      PYTHONPATH: /opt/airflow:/opt/airflow/src
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-inventory_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./src:/opt/airflow/src
+      - ./data:/opt/airflow/data
+      - ./results:/opt/airflow/results
+      - ./sql:/opt/airflow/sql
+    networks:
+      - platform-net
+
+  # ----------------------------------------------------------------------------
+  # 4. Redpanda Streaming Broker (Person 4)
+  # ----------------------------------------------------------------------------
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v23.3.11
+    container_name: retail-redpanda
+    restart: unless-stopped
+    command:
+      - redpanda
+      - start
+      - --overprovisioned
+      - --smp 1
+      - --memory 512M
+      - --reserve-memory 0M
+      - --node-id 0
+      - --check=false
+      - --kafka-addr PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+      - --advertise-kafka-addr PLAINTEXT://redpanda:29092,OUTSIDE://localhost:9092
+    ports:
+      - "9092:9092"
+      - "9644:9644"
+    networks:
+      - platform-net
+
+  # ----------------------------------------------------------------------------
+  # 5. Downstream Mock API Service (Person 3)
+  # ----------------------------------------------------------------------------
+  mock-api:
+    image: python:3.11-slim
+    container_name: retail-mock-api
+    restart: unless-stopped
+    working_dir: /app
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    command: >
+      bash -c "pip install -q fastapi uvicorn pydantic &&
+      uvicorn src.api.main:app --host 0.0.0.0 --port 8000"
+    networks:
+      - platform-net
+
+  # ----------------------------------------------------------------------------
+  # 6. Streamlit Dashboard (Person 4)
+  # ----------------------------------------------------------------------------
+  dashboard:
+    image: python:3.11-slim
+    container_name: retail-dashboard
+    restart: unless-stopped
+    working_dir: /app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+    ports:
+      - "8501:8501"
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-inventory_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    command: >
+      bash -c "pip install -q streamlit psycopg2-binary pandas plotly &&
+      streamlit run dashboard/app.py --server.port=8501 --server.address=0.0.0.0"
+    networks:
+      - platform-net

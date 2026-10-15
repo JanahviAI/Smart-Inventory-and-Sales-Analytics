@@ -1,0 +1,92 @@
+{
+  "flowEncodingVersion": "1.0",
+  "flow": {
+    "identifier": "retail-ingest-pg-001",
+    "name": "Retail_Source_to_Landing_Ingestion",
+    "comments": "NiFi Process Group routing sales, products, and inventory CSVs from data/source to data/landing atomically",
+    "position": {
+      "x": 300.0,
+      "y": 100.0
+    },
+    "processGroups": [],
+    "remoteProcessGroups": [],
+    "processors": [
+      {
+        "identifier": "proc-list-source-files",
+        "name": "List Source CSV Files",
+        "type": "org.apache.nifi.processors.standard.ListFile",
+        "bundle": {
+          "group": "org.apache.nifi",
+          "artifact": "nifi-standard-nar",
+          "version": "1.25.0"
+        },
+        "properties": {
+          "Input Directory": "/opt/nifi/data/source",
+          "Recurse Subdirectories": "false",
+          "File Filter": "(sales|products|inventory)\\.csv$",
+          "Minimum File Age": "0 sec"
+        },
+        "schedulingPeriod": "10 sec"
+      },
+      {
+        "identifier": "proc-fetch-source-files",
+        "name": "Fetch Source File Content",
+        "type": "org.apache.nifi.processors.standard.FetchFile",
+        "bundle": {
+          "group": "org.apache.nifi",
+          "artifact": "nifi-standard-nar",
+          "version": "1.25.0"
+        },
+        "properties": {
+          "File to Retrieve": "${absolute.path}/${filename}",
+          "Completion Strategy": "None"
+        }
+      },
+      {
+        "identifier": "proc-route-landing-atomic",
+        "name": "PutFile to Landing (Atomic Write)",
+        "type": "org.apache.nifi.processors.standard.PutFile",
+        "bundle": {
+          "group": "org.apache.nifi",
+          "artifact": "nifi-standard-nar",
+          "version": "1.25.0"
+        },
+        "properties": {
+          "Directory": "/opt/nifi/data/landing",
+          "Conflict Resolution Strategy": "replace",
+          "Create Missing Directories": "true",
+          "Temporary Directory": "/opt/nifi/data/landing/.tmp",
+          "Permissions": "0644"
+        }
+      }
+    ],
+    "connections": [
+      {
+        "identifier": "conn-list-to-fetch",
+        "name": "success",
+        "source": {
+          "id": "proc-list-source-files",
+          "type": "PROCESSOR"
+        },
+        "destination": {
+          "id": "proc-fetch-source-files",
+          "type": "PROCESSOR"
+        },
+        "selectedRelationships": ["success"]
+      },
+      {
+        "identifier": "conn-fetch-to-put",
+        "name": "success",
+        "source": {
+          "id": "proc-fetch-source-files",
+          "type": "PROCESSOR"
+        },
+        "destination": {
+          "id": "proc-route-landing-atomic",
+          "type": "PROCESSOR"
+        },
+        "selectedRelationships": ["success"]
+      }
+    ]
+  }
+}
