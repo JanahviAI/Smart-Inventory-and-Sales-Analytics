@@ -196,39 +196,116 @@ def _record_timestamp(message: Any) -> datetime | None:
     return datetime.fromtimestamp(timestamp_ms / 1000, tz=timezone.utc)
 
 
-def consume_forever() -> None:
+def consume_events(
+    max_events: int | None = None,
+    idle_timeout_seconds: float | None = 5.0,
+) -> dict[str, Any]:
+    """
+    Consume events from the configured Redpanda topic.
+
+    Args:
+        max_events: If specified, stop after consuming this many events.
+        idle_timeout_seconds: If specified and >0, stop if no new messages arrive within this window after receiving at least one event.
+    """
     consumer = build_consumer()
-    logger.info("Listening on topic %s", os.getenv("REDPANDA_TOPIC", "sales.events"))
+    topic = os.getenv("REDPANDA_TOPIC", "sales.events")
+    logger.info("Listening on topic %s (max_events=%s, timeout=%s)", topic, max_events, idle_timeout_seconds)
+
+    consumed = 0
+    accepted = 0
+    rejected = 0
+    duplicate = 0
+    last_msg_time = time.time()
+    started = time.time()
+
     try:
         while True:
             message = consumer.poll(1.0)
+            now = time.time()
             if message is None:
+                if consumed > 0 and idle_timeout_seconds is not None and (now - last_msg_time) >= idle_timeout_seconds:
+                    logger.info("Idle timeout of %.1fs reached without new messages; stopping.", idle_timeout_seconds)
+                    break
                 continue
+
+            last_msg_time = now
+
             if message.error():
                 if message.error().code() == KafkaError._PARTITION_EOF:
                     continue
                 logger.error("Kafka consumer error: %s", message.error())
                 continue
 
+            consumed += 1
             try:
                 event = json.loads(message.value().decode("utf-8"))
             except (UnicodeDecodeError, json.JSONDecodeError) as exc:
                 event = {"raw": message.value().decode("utf-8", errors="replace")}
                 outcome = _record_rejection(event, f"INVALID_JSON: {exc}")
+                rejected += 1
             else:
                 outcome = process_inventory_event(event, published_at=_record_timestamp(message))
+                status = outcome.get("status")
+                if status == "accepted":
+                    accepted += 1
+                elif status == "rejected":
+                    if "DUPLICATE_EVENT_ID" in outcome.get("reason", ""):
+                        duplicate += 1
+                    else:
+                        rejected += 1
 
-            # Persist before acknowledging the offset: a crash can replay a message,
-            # while the database event_id key prevents a second inventory change.
+            # Persist before acknowledging the offset
             consumer.commit(message=message, asynchronous=False)
-            logger.info("Processed event outcome=%s", outcome)
+
+            if consumed % 200 == 0:
+                logger.info("Consumed %d events: %d accepted, %d rejected, %d duplicate", consumed, accepted, rejected, duplicate)
+
+            if max_events is not None and consumed >= max_events:
+                logger.info("Reached target limit of %d events; stopping.", max_events)
+                break
     finally:
         consumer.close()
 
+    duration = round(time.time() - started, 3)
+    summary = {
+        "consumed": consumed,
+        "accepted": accepted,
+        "rejected": rejected,
+        "duplicate": duplicate,
+        "duration_seconds": duration,
+    }
+    logger.info("Consumer execution finished: %s", summary)
+    return summary
+
+
+def consume_forever() -> None:
+    consume_events(max_events=None, idle_timeout_seconds=None)
+
 
 def main() -> None:
+    import argparse
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--max-events", type=int, default=None, help="Stop after consuming N events")
+    parser.add_argument("--timeout", type=float, default=5.0, help="Idle timeout in seconds (default: 5.0)")
+    parser.add_argument("--report", action="store_true", help="Generate results/streaming_results.json after consuming")
+    args = parser.parse_args()
+
     logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
-    consume_forever()
+
+    if args.max_events is not None:
+        stats = consume_events(max_events=args.max_events, idle_timeout_seconds=args.timeout)
+        print(f"Streaming Consumer Finished:")
+        print(f"  - Total Consumed: {stats['consumed']}")
+        print(f"  - Accepted:       {stats['accepted']}")
+        print(f"  - Rejected:       {stats['rejected']}")
+        print(f"  - Duplicate:      {stats['duplicate']}")
+        print(f"  - Duration:       {stats['duration_seconds']}s")
+    else:
+        consume_forever()
+
+    if args.report:
+        from scripts.report_streaming_results import main as report_main
+        report_main()
 
 
 if __name__ == "__main__":

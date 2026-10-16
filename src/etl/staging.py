@@ -102,7 +102,17 @@ def load_staging(run_id: str, landing_dir: Optional[Path] = None) -> Dict[str, A
             # 2. Ingest products
             products_file = source_dir / "products.csv"
             product_rows = _read_csv_raw(products_file)
-            for r in product_rows:
+            if product_rows:
+                prod_params = [
+                    {
+                        "pid": r.get("product_id", ""),
+                        "pname": r.get("product_name", ""),
+                        "cat": r.get("category", ""),
+                        "supp": r.get("supplier_id", ""),
+                        "run_id": run_id,
+                    }
+                    for r in product_rows
+                ]
                 conn.execute(
                     text(
                         """
@@ -110,13 +120,7 @@ def load_staging(run_id: str, landing_dir: Optional[Path] = None) -> Dict[str, A
                         VALUES (:pid, :pname, :cat, :supp, :run_id)
                         """
                     ),
-                    {
-                        "pid": r.get("product_id", ""),
-                        "pname": r.get("product_name", ""),
-                        "cat": r.get("category", ""),
-                        "supp": r.get("supplier_id", ""),
-                        "run_id": run_id,
-                    },
+                    prod_params,
                 )
             table_counts["stg_products"] = len(product_rows)
             total_rows_loaded += len(product_rows)
@@ -124,7 +128,16 @@ def load_staging(run_id: str, landing_dir: Optional[Path] = None) -> Dict[str, A
             # 3. Ingest inventory
             inventory_file = source_dir / "inventory.csv"
             inventory_rows = _read_csv_raw(inventory_file)
-            for r in inventory_rows:
+            if inventory_rows:
+                inv_params = [
+                    {
+                        "pid": r.get("product_id", ""),
+                        "stock": r.get("current_stock", ""),
+                        "reorder": r.get("reorder_level", ""),
+                        "run_id": run_id,
+                    }
+                    for r in inventory_rows
+                ]
                 conn.execute(
                     text(
                         """
@@ -132,12 +145,7 @@ def load_staging(run_id: str, landing_dir: Optional[Path] = None) -> Dict[str, A
                         VALUES (:pid, :stock, :reorder, :run_id)
                         """
                     ),
-                    {
-                        "pid": r.get("product_id", ""),
-                        "stock": r.get("current_stock", ""),
-                        "reorder": r.get("reorder_level", ""),
-                        "run_id": run_id,
-                    },
+                    inv_params,
                 )
             table_counts["stg_inventory"] = len(inventory_rows)
             total_rows_loaded += len(inventory_rows)
@@ -145,21 +153,15 @@ def load_staging(run_id: str, landing_dir: Optional[Path] = None) -> Dict[str, A
             # 4. Ingest sales
             sales_file = source_dir / "sales.csv"
             sales_rows = _read_csv_raw(sales_file)
-            for r in sales_rows:
-                order_id = r.get("order_id", "")
-                product_id = r.get("product_id", "")
-                order_line_id = r.get("order_line_id") or (
-                    f"{order_id}-{product_id}" if order_id and product_id else ""
-                )
-
-                conn.execute(
-                    text(
-                        """
-                        INSERT INTO stg_sales (raw_order_line_id, raw_order_id, raw_order_date, raw_product_id, raw_quantity, raw_unit_price, run_id)
-                        VALUES (:line_id, :oid, :odate, :pid, :qty, :price, :run_id)
-                        """
-                    ),
-                    {
+            if sales_rows:
+                sales_params = []
+                for r in sales_rows:
+                    order_id = r.get("order_id", "")
+                    product_id = r.get("product_id", "")
+                    order_line_id = r.get("order_line_id") or (
+                        f"{order_id}-{product_id}" if order_id and product_id else ""
+                    )
+                    sales_params.append({
                         "line_id": order_line_id,
                         "oid": order_id,
                         "odate": r.get("order_date", ""),
@@ -167,7 +169,15 @@ def load_staging(run_id: str, landing_dir: Optional[Path] = None) -> Dict[str, A
                         "qty": r.get("quantity", ""),
                         "price": r.get("unit_price", ""),
                         "run_id": run_id,
-                    },
+                    })
+                conn.execute(
+                    text(
+                        """
+                        INSERT INTO stg_sales (raw_order_line_id, raw_order_id, raw_order_date, raw_product_id, raw_quantity, raw_unit_price, run_id)
+                        VALUES (:line_id, :oid, :odate, :pid, :qty, :price, :run_id)
+                        """
+                    ),
+                    sales_params,
                 )
             table_counts["stg_sales"] = len(sales_rows)
             total_rows_loaded += len(sales_rows)

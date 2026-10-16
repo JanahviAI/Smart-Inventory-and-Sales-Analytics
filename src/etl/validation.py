@@ -107,6 +107,7 @@ def validate_and_clean(run_id: str) -> Dict[str, Any]:
             total_staged += prod_staged
 
             seen_batch_product_ids: Set[int] = set()
+            accepted_products: List[Dict[str, Any]] = []
 
             for row in stg_products:
                 raw_dict = {
@@ -143,7 +144,15 @@ def validate_and_clean(run_id: str) -> Dict[str, Any]:
                     continue
                 seen_batch_product_ids.add(product_id)
 
-                # Upsert into trusted products table
+                accepted_products.append({
+                    "pid": product_id,
+                    "pname": str(row[1]).strip(),
+                    "cat": str(row[2]).strip(),
+                    "supp": str(row[3]).strip(),
+                })
+                prod_accepted += 1
+
+            if accepted_products:
                 conn.execute(
                     text(
                         """
@@ -156,14 +165,8 @@ def validate_and_clean(run_id: str) -> Dict[str, Any]:
                             updated_at = CURRENT_TIMESTAMP
                         """
                     ),
-                    {
-                        "pid": product_id,
-                        "pname": str(row[1]).strip(),
-                        "cat": str(row[2]).strip(),
-                        "supp": str(row[3]).strip(),
-                    },
+                    accepted_products,
                 )
-                prod_accepted += 1
 
             table_stats["products"] = {
                 "staged": prod_staged,
@@ -191,6 +194,7 @@ def validate_and_clean(run_id: str) -> Dict[str, Any]:
             total_staged += inv_staged
 
             seen_batch_inv_pids: Set[int] = set()
+            accepted_inventory: List[Dict[str, Any]] = []
 
             for row in stg_inventory:
                 raw_dict = {
@@ -244,7 +248,14 @@ def validate_and_clean(run_id: str) -> Dict[str, Any]:
                     continue
                 seen_batch_inv_pids.add(product_id)
 
-                # Upsert into trusted inventory table
+                accepted_inventory.append({
+                    "pid": product_id,
+                    "stock": current_stock,
+                    "reorder": reorder_level,
+                })
+                inv_accepted += 1
+
+            if accepted_inventory:
                 conn.execute(
                     text(
                         """
@@ -256,9 +267,8 @@ def validate_and_clean(run_id: str) -> Dict[str, Any]:
                             last_updated = CURRENT_TIMESTAMP
                         """
                     ),
-                    {"pid": product_id, "stock": current_stock, "reorder": reorder_level},
+                    accepted_inventory,
                 )
-                inv_accepted += 1
 
             table_stats["inventory"] = {
                 "staged": inv_staged,
@@ -287,6 +297,7 @@ def validate_and_clean(run_id: str) -> Dict[str, Any]:
 
             seen_batch_line_ids: Set[str] = set()
             seen_batch_order_products: Set[Tuple[str, int]] = set()
+            accepted_sales: List[Dict[str, Any]] = []
 
             for row in stg_sales:
                 raw_dict = {
@@ -396,7 +407,19 @@ def validate_and_clean(run_id: str) -> Dict[str, Any]:
 
                 total_price = round(quantity * unit_price, 2)
 
-                # Upsert into trusted sales table (Idempotent: reruns will not duplicate rows)
+                accepted_sales.append({
+                    "lid": order_line_id,
+                    "oid": order_id,
+                    "odate": parsed_date,
+                    "pid": product_id,
+                    "qty": quantity,
+                    "price": unit_price,
+                    "total": total_price,
+                    "run_id": run_id,
+                })
+                sales_accepted += 1
+
+            if accepted_sales:
                 conn.execute(
                     text(
                         """
@@ -410,18 +433,8 @@ def validate_and_clean(run_id: str) -> Dict[str, Any]:
                             updated_at = CURRENT_TIMESTAMP
                         """
                     ),
-                    {
-                        "lid": order_line_id,
-                        "oid": order_id,
-                        "odate": parsed_date,
-                        "pid": product_id,
-                        "qty": quantity,
-                        "price": unit_price,
-                        "total": total_price,
-                        "run_id": run_id,
-                    },
+                    accepted_sales,
                 )
-                sales_accepted += 1
 
             table_stats["sales"] = {
                 "staged": sales_staged,

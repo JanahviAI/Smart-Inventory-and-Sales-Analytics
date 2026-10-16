@@ -1,94 +1,517 @@
 {
   "run_id": "test-at01-clean",
-  "timestamp": "2026-10-15T19:06:29Z",
+  "timestamp": "2026-10-16T02:22:37Z",
   "metrics": {
-    "total_orders": 15,
-    "total_units": 25,
-    "total_revenue": 2534.39,
+    "total_orders": 10000,
+    "total_units": 15468,
+    "total_revenue": 2645368.32,
     "category_breakdown": [
       {
-        "category": "Electronics",
-        "units_sold": 12.0,
-        "revenue": 1099.44
+        "category": "Furniture",
+        "units_sold": 1890.0,
+        "revenue": 907065.5
       },
       {
-        "category": "Furniture",
-        "units_sold": 4.0,
-        "revenue": 717.0
+        "category": "Electronics",
+        "units_sold": 1941.0,
+        "revenue": 477161.83
       },
       {
         "category": "Audio",
-        "units_sold": 3.0,
-        "revenue": 539.97
+        "units_sold": 2152.0,
+        "revenue": 377154.98
       },
       {
-        "category": "Lighting",
-        "units_sold": 4.0,
-        "revenue": 98.0
+        "category": "Computer Peripherals",
+        "units_sold": 2820.0,
+        "revenue": 239697.05
       },
       {
-        "category": "Accessories",
-        "units_sold": 2.0,
-        "revenue": 79.98
+        "category": "Networking",
+        "units_sold": 1736.0,
+        "revenue": 239429.83
+      },
+      {
+        "category": "Smart Lighting",
+        "units_sold": 2058.0,
+        "revenue": 154918.65
+      },
+      {
+        "category": "Office Supplies",
+        "units_sold": 1541.0,
+        "revenue": 138419.07
+      },
+      {
+        "category": "Storage & Accessories",
+        "units_sold": 1330.0,
+        "revenue": 111521.41
       }
     ],
     "top_products": [
       {
-        "product_id": 104,
-        "product_name": "27-inch 4K UHD Monitor",
-        "category": "Electronics",
-        "units_sold": 2.0,
-        "total_revenue": 699.98
-      },
-      {
-        "product_id": 105,
-        "product_name": "Ergonomic Mesh Chair",
+        "product_id": 102,
+        "product_name": "Solid Wood Standing Desk 102",
         "category": "Furniture",
-        "units_sold": 3.0,
-        "total_revenue": 597.0
-      },
-      {
-        "product_id": 107,
-        "product_name": "Active Noise Cancelling Headphones",
-        "category": "Audio",
-        "units_sold": 3.0,
-        "total_revenue": 539.97
-      },
-      {
-        "product_id": 103,
-        "product_name": "USB-C Multiport Hub",
-        "category": "Electronics",
-        "units_sold": 5.0,
-        "total_revenue": 170.0
+        "units_sold": 383.0,
+        "total_revenue": 231623.08
       },
       {
         "product_id": 106,
-        "product_name": "Standing Desk Converter",
+        "product_name": "Hi-Fi Audio Interface 106",
+        "category": "Audio",
+        "units_sold": 203.0,
+        "total_revenue": 58474.15
+      },
+      {
+        "product_id": 136,
+        "product_name": "Executive Cable Management Tray 136",
         "category": "Furniture",
-        "units_sold": 1.0,
-        "total_revenue": 120.0
+        "units_sold": 66.0,
+        "total_revenue": 50106.54
+      },
+      {
+        "product_id": 101,
+        "product_name": "Mechanical Wrist Rest 101",
+        "category": "Computer Peripherals",
+        "units_sold": 738.0,
+        "total_revenue": 45475.56
+      },
+      {
+        "product_id": 105,
+        "product_name": "Cardioid Boom Arm 105",
+        "category": "Audio",
+        "units_sold": 220.0,
+        "total_revenue": 44462.0
       }
     ],
     "low_stock_items": [
       {
-        "product_id": 107,
-        "product_name": "Active Noise Cancelling Headphones",
-        "current_stock": 5,
-        "reorder_level": 25
-      },
-      {
-        "product_id": 105,
-        "product_name": "Ergonomic Mesh Chair",
-        "current_stock": 8,
+        "product_id": 575,
+        "product_name": "Magnetic Stapler 575",
+        "current_stock": 0,
         "reorder_level": 15
       },
       {
-        "product_id": 103,
-        "product_name": "USB-C Multiport Hub",
-        "current_stock": 12,
+        "product_id": 422,
+        "product_name": "Dimmable Ring Light 422",
+        "current_stock": 0,
+        "reorder_level": 40
+      },
+      {
+        "product_id": 555,
+        "product_name": "Smart Sensor LED Strip Light 555",
+        "current_stock": 0,
+        "reorder_level": 50
+      },
+      {
+        "product_id": 223,
+        "product_name": "4K UHD Graphics Tablet 223",
+        "current_stock": 0,
+        "reorder_level": 20
+      },
+      {
+        "product_id": 595,
+        "product_name": "Magnetic Stapler 595",
+        "current_stock": 1,
+        "reorder_level": 20
+      },
+      {
+        "product_id": 442,
+        "product_name": "Executive Desk Converter 442",
+        "current_stock": 1,
+        "reorder_level": 20
+      },
+      {
+        "product_id": 225,
+        "product_name": "Hi-Fi Earbuds 225",
+        "current_stock": 2,
+        "reorder_level": 10
+      },
+      {
+        "product_id": 578,
+        "product_name": "Smart Sensor Ring Light 578",
+        "current_stock": 2,
+        "reorder_level": 10
+      },
+      {
+        "product_id": 145,
+        "product_name": "Magnetic Label Maker 145",
+        "current_stock": 2,
         "reorder_level": 30
+      },
+      {
+        "product_id": 364,
+        "product_name": "Studio Reference Desk Microphone 364",
+        "current_stock": 2,
+        "reorder_level": 10
+      },
+      {
+        "product_id": 563,
+        "product_name": "Adaptive Desk Lamp 563",
+        "current_stock": 2,
+        "reorder_level": 10
+      },
+      {
+        "product_id": 485,
+        "product_name": "Compact Power Bank 485",
+        "current_stock": 3,
+        "reorder_level": 10
+      },
+      {
+        "product_id": 211,
+        "product_name": "Multi-Device Number Pad 211",
+        "current_stock": 3,
+        "reorder_level": 10
+      },
+      {
+        "product_id": 525,
+        "product_name": "Braided Laptop Stand 525",
+        "current_stock": 3,
+        "reorder_level": 10
+      },
+      {
+        "product_id": 489,
+        "product_name": "Managed Range Extender 489",
+        "current_stock": 4,
+        "reorder_level": 50
+      },
+      {
+        "product_id": 175,
+        "product_name": "Pro Power Bank 175",
+        "current_stock": 4,
+        "reorder_level": 15
+      },
+      {
+        "product_id": 304,
+        "product_name": "Rugged Screen Protector 304",
+        "current_stock": 4,
+        "reorder_level": 30
+      },
+      {
+        "product_id": 463,
+        "product_name": "Heavy-Duty Whiteboard 463",
+        "current_stock": 4,
+        "reorder_level": 30
+      },
+      {
+        "product_id": 293,
+        "product_name": "High-Speed Docking Station 293",
+        "current_stock": 6,
+        "reorder_level": 25
+      },
+      {
+        "product_id": 498,
+        "product_name": "High-Gain Ethernet Adapter 498",
+        "current_stock": 7,
+        "reorder_level": 15
+      },
+      {
+        "product_id": 492,
+        "product_name": "High-Gain Ethernet Adapter 492",
+        "current_stock": 7,
+        "reorder_level": 10
+      },
+      {
+        "product_id": 320,
+        "product_name": "Desktop Whiteboard 320",
+        "current_stock": 7,
+        "reorder_level": 20
+      },
+      {
+        "product_id": 479,
+        "product_name": "Modular Laptop Stand 479",
+        "current_stock": 7,
+        "reorder_level": 15
+      },
+      {
+        "product_id": 562,
+        "product_name": "Omnidirectional Desk Microphone 562",
+        "current_stock": 8,
+        "reorder_level": 20
+      },
+      {
+        "product_id": 530,
+        "product_name": "Gigabit Router 530",
+        "current_stock": 9,
+        "reorder_level": 10
+      },
+      {
+        "product_id": 370,
+        "product_name": "PoE+ Access Point 370",
+        "current_stock": 9,
+        "reorder_level": 15
+      },
+      {
+        "product_id": 305,
+        "product_name": "Dual-Motor Standing Desk 305",
+        "current_stock": 9,
+        "reorder_level": 20
+      },
+      {
+        "product_id": 476,
+        "product_name": "Braided Laptop Stand 476",
+        "current_stock": 10,
+        "reorder_level": 50
+      },
+      {
+        "product_id": 569,
+        "product_name": "Color-Changing LED Strip Light 569",
+        "current_stock": 10,
+        "reorder_level": 15
+      },
+      {
+        "product_id": 245,
+        "product_name": "Portable Travel Case 245",
+        "current_stock": 10,
+        "reorder_level": 30
+      },
+      {
+        "product_id": 313,
+        "product_name": "Pneumatic Standing Desk 313",
+        "current_stock": 11,
+        "reorder_level": 30
+      },
+      {
+        "product_id": 436,
+        "product_name": "Bluetooth Wrist Rest 436",
+        "current_stock": 11,
+        "reorder_level": 15
+      },
+      {
+        "product_id": 455,
+        "product_name": "Ergonomic Mouse 455",
+        "current_stock": 12,
+        "reorder_level": 20
+      },
+      {
+        "product_id": 378,
+        "product_name": "Hi-Fi Soundbar 378",
+        "current_stock": 12,
+        "reorder_level": 25
+      },
+      {
+        "product_id": 573,
+        "product_name": "Dimmable Desk Lamp 573",
+        "current_stock": 12,
+        "reorder_level": 15
+      },
+      {
+        "product_id": 452,
+        "product_name": "Dual-Motor Footrest 452",
+        "current_stock": 13,
+        "reorder_level": 15
+      },
+      {
+        "product_id": 472,
+        "product_name": "Dual-Motor Desk Converter 472",
+        "current_stock": 14,
+        "reorder_level": 15
+      },
+      {
+        "product_id": 598,
+        "product_name": "4K UHD Capture Card 598",
+        "current_stock": 14,
+        "reorder_level": 15
+      },
+      {
+        "product_id": 446,
+        "product_name": "Magnetic Document Scanner 446",
+        "current_stock": 14,
+        "reorder_level": 20
+      },
+      {
+        "product_id": 398,
+        "product_name": "Ergonomic Number Pad 398",
+        "current_stock": 15,
+        "reorder_level": 40
+      },
+      {
+        "product_id": 169,
+        "product_name": "Adaptive Under-Cabinet Bar 169",
+        "current_stock": 15,
+        "reorder_level": 15
+      },
+      {
+        "product_id": 554,
+        "product_name": "Smart Sensor Under-Cabinet Bar 554",
+        "current_stock": 16,
+        "reorder_level": 40
+      },
+      {
+        "product_id": 220,
+        "product_name": "Hi-Fi Boom Arm 220",
+        "current_stock": 17,
+        "reorder_level": 40
+      },
+      {
+        "product_id": 251,
+        "product_name": "High-Speed Capture Card 251",
+        "current_stock": 18,
+        "reorder_level": 20
+      },
+      {
+        "product_id": 109,
+        "product_name": "Dual-Band Ethernet Adapter 109",
+        "current_stock": 19,
+        "reorder_level": 50
+      },
+      {
+        "product_id": 117,
+        "product_name": "Studio Reference Soundbar 117",
+        "current_stock": 19,
+        "reorder_level": 30
+      },
+      {
+        "product_id": 291,
+        "product_name": "Multi-Device Mouse 291",
+        "current_stock": 19,
+        "reorder_level": 25
+      },
+      {
+        "product_id": 527,
+        "product_name": "Wi-Fi 6E Network Switch 527",
+        "current_stock": 19,
+        "reorder_level": 25
+      },
+      {
+        "product_id": 174,
+        "product_name": "Smart Sensor Under-Cabinet Bar 174",
+        "current_stock": 20,
+        "reorder_level": 25
+      },
+      {
+        "product_id": 177,
+        "product_name": "Solid Wood Footrest 177",
+        "current_stock": 20,
+        "reorder_level": 20
+      },
+      {
+        "product_id": 268,
+        "product_name": "RGB Backlit Number Pad 268",
+        "current_stock": 20,
+        "reorder_level": 30
+      },
+      {
+        "product_id": 104,
+        "product_name": "Studio Reference Audio Interface 104",
+        "current_stock": 21,
+        "reorder_level": 25
+      },
+      {
+        "product_id": 576,
+        "product_name": "Ergonomic Mouse 576",
+        "current_stock": 21,
+        "reorder_level": 25
+      },
+      {
+        "product_id": 491,
+        "product_name": "Low-Profile Mouse 491",
+        "current_stock": 21,
+        "reorder_level": 50
+      },
+      {
+        "product_id": 495,
+        "product_name": "Omnidirectional Desk Microphone 495",
+        "current_stock": 21,
+        "reorder_level": 25
+      },
+      {
+        "product_id": 520,
+        "product_name": "Recycled Paper Shredder 520",
+        "current_stock": 22,
+        "reorder_level": 30
+      },
+      {
+        "product_id": 337,
+        "product_name": "Wi-Fi 6E Patch Cable Reel 337",
+        "current_stock": 22,
+        "reorder_level": 50
+      },
+      {
+        "product_id": 428,
+        "product_name": "Adjustable Monitor Arm 428",
+        "current_stock": 22,
+        "reorder_level": 30
+      },
+      {
+        "product_id": 504,
+        "product_name": "Desktop Label Maker 504",
+        "current_stock": 24,
+        "reorder_level": 50
+      },
+      {
+        "product_id": 353,
+        "product_name": "Mechanical Mouse 353",
+        "current_stock": 24,
+        "reorder_level": 30
+      },
+      {
+        "product_id": 587,
+        "product_name": "Pneumatic Task Chair 587",
+        "current_stock": 24,
+        "reorder_level": 30
+      },
+      {
+        "product_id": 193,
+        "product_name": "Ergonomic Mouse 193",
+        "current_stock": 25,
+        "reorder_level": 50
+      },
+      {
+        "product_id": 349,
+        "product_name": "Gigabit Patch Cable Reel 349",
+        "current_stock": 25,
+        "reorder_level": 25
+      },
+      {
+        "product_id": 295,
+        "product_name": "High-Speed Power Bank 295",
+        "current_stock": 27,
+        "reorder_level": 30
+      },
+      {
+        "product_id": 141,
+        "product_name": "Wireless USB-C Hub 141",
+        "current_stock": 28,
+        "reorder_level": 40
+      },
+      {
+        "product_id": 263,
+        "product_name": "Adjustable Standing Desk 263",
+        "current_stock": 30,
+        "reorder_level": 30
+      },
+      {
+        "product_id": 350,
+        "product_name": "PoE+ Network Switch 350",
+        "current_stock": 32,
+        "reorder_level": 50
+      },
+      {
+        "product_id": 356,
+        "product_name": "Modular NVMe SSD Enclosure 356",
+        "current_stock": 34,
+        "reorder_level": 50
+      },
+      {
+        "product_id": 212,
+        "product_name": "Heavy-Duty Stapler 212",
+        "current_stock": 38,
+        "reorder_level": 50
+      },
+      {
+        "product_id": 438,
+        "product_name": "Dual-Band Range Extender 438",
+        "current_stock": 45,
+        "reorder_level": 50
+      },
+      {
+        "product_id": 389,
+        "product_name": "Braided Screen Protector 389",
+        "current_stock": 46,
+        "reorder_level": 50
       }
     ],
-    "low_stock_count": 3
+    "low_stock_count": 71
   }
 }

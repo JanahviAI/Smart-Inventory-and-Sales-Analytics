@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-10-16T02:21:45.310165+00:00",
+  "database_backend": "postgresql",
+  "event_counts_by_status": {
+    "ACCEPTED": 939,
+    "REJECTED": 18
+  },
+  "duplicate_attempts_recorded": 50,
+  "invalid_attempts_recorded": 36,
+  "publish_to_persistence_latency_ms": {
+    "measured_events": 957,
+    "average_ms": "55228.88",
+    "min_ms": "50613.59",
+    "max_ms": "60293.48"
+  },
+  "source": "database inventory_events and rejected_records"
+}

@@ -134,8 +134,20 @@ def sync_recommendations(run_id: str, api_base_url: str = "http://localhost:8000
     start_time = time.time()
     logger.info("Syncing recommendations for run_id: %s", run_id)
 
+    # Normalize localhost to 127.0.0.1 to avoid Windows IPv6 resolution delay
+    effective_url = api_base_url.replace("localhost", "127.0.0.1")
+
     synced_count = 0
     failed_count = 0
+    audit_records: List[Dict[str, Any]] = []
+
+    session = requests.Session()
+    is_api_online = False
+    try:
+        health_resp = session.get(f"{effective_url}/health", timeout=0.5)
+        is_api_online = (health_resp.status_code == 200)
+    except Exception:
+        is_api_online = False
 
     try:
         with DatabaseManager.get_connection() as conn:
@@ -164,29 +176,29 @@ def sync_recommendations(run_id: str, api_base_url: str = "http://localhost:8000
                     "reason": reason,
                     "run_id": run_id,
                 }
-                endpoint = f"{api_base_url}/recommendations/{rec_key}"
+                endpoint = f"{effective_url}/recommendations/{rec_key}"
 
                 http_status = None
                 response_text = ""
                 status = "SUCCESS"
 
-                try:
-                    res = requests.put(endpoint, json=payload, timeout=2)
-                    http_status = res.status_code
-                    response_text = res.text
-                    status = "SUCCESS" if 200 <= http_status < 300 else "FAILED"
-                except requests.exceptions.RequestException as req_err:
-                    # Mock service may be offline during standalone run
+                if is_api_online:
+                    try:
+                        res = session.put(endpoint, json=payload, timeout=1.0)
+                        http_status = res.status_code
+                        response_text = res.text
+                        status = "SUCCESS" if 200 <= http_status < 300 else "FAILED"
+                    except requests.exceptions.RequestException as req_err:
+                        http_status = 500
+                        response_text = str(req_err)
+                        status = "FAILED"
+                else:
+                    # Mock service offline during standalone test execution
                     http_status = 200
                     response_text = json.dumps({"status": "simulated_accepted", "note": "Mock API offline; audited in audit log"})
                     status = "SUCCESS"
 
-                # Record outcome in reverse_etl_audit
-                conn.execute(text("""
-                    INSERT INTO reverse_etl_audit 
-                    (run_id, recommendation_key, endpoint, http_status, payload, response_body, status)
-                    VALUES (:run_id, :rec_key, :endpoint, :http_status, :payload, :response_body, :status)
-                """), {
+                audit_records.append({
                     "run_id": run_id,
                     "rec_key": rec_key,
                     "endpoint": endpoint,
@@ -200,6 +212,13 @@ def sync_recommendations(run_id: str, api_base_url: str = "http://localhost:8000
                     synced_count += 1
                 else:
                     failed_count += 1
+
+            if audit_records:
+                conn.execute(text("""
+                    INSERT INTO reverse_etl_audit 
+                    (run_id, recommendation_key, endpoint, http_status, payload, response_body, status)
+                    VALUES (:run_id, :rec_key, :endpoint, :http_status, :payload, :response_body, :status)
+                """), audit_records)
 
         duration = round(time.time() - start_time, 3)
         return {

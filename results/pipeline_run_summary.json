@@ -1,32 +1,32 @@
 {
   "run_id": "test-tracker-lifecycle",
   "status": "SUCCESS",
-  "started_at": "2026-10-15 19:06:41",
-  "ended_at": "2026-10-15T19:06:41Z",
+  "started_at": "2026-10-16 02:22:42.423700+00:00",
+  "ended_at": "2026-10-16T02:22:42Z",
   "tasks_count": 2,
   "tasks_completed": [
     {
-      "task_name": "mock_task_1",
       "status": "SUCCESS",
-      "duration_seconds": 0.05,
-      "completed_at": "2026-10-15T19:06:41Z",
       "details": {
         "rows": 42
-      }
+      },
+      "task_name": "mock_task_1",
+      "completed_at": "2026-10-16T02:22:42Z",
+      "duration_seconds": 0.05
     },
     {
-      "task_name": "mock_task_2",
       "status": "SUCCESS",
-      "duration_seconds": 0.1,
-      "completed_at": "2026-10-15T19:06:41Z",
       "details": {
         "status": "ok"
-      }
+      },
+      "task_name": "mock_task_2",
+      "completed_at": "2026-10-16T02:22:42Z",
+      "duration_seconds": 0.1
     }
   ],
   "summary": {
     "total": 42,
-    "ended_at": "2026-10-15T19:06:41Z",
+    "ended_at": "2026-10-16T02:22:42Z",
     "final_status": "SUCCESS"
   }
 }

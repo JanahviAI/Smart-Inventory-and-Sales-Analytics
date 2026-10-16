@@ -1,28 +1,28 @@
 {
   "run_id": "test-run-reconcile-011",
   "status": "success",
-  "timestamp": "2026-10-15T19:06:42.379029Z",
-  "duration_seconds": 0.0084,
+  "timestamp": "2026-10-16T02:22:47.115824Z",
+  "duration_seconds": 0.3747,
   "summary": {
-    "total_staged": 35,
-    "total_accepted": 35,
+    "total_staged": 11000,
+    "total_accepted": 11000,
     "total_rejected": 0,
     "pass_rate_percentage": 100.0
   },
   "table_breakdown": {
     "products": {
-      "staged": 10,
-      "accepted": 10,
+      "staged": 500,
+      "accepted": 500,
       "rejected": 0
     },
     "inventory": {
-      "staged": 10,
-      "accepted": 10,
+      "staged": 500,
+      "accepted": 500,
       "rejected": 0
     },
     "sales": {
-      "staged": 15,
-      "accepted": 15,
+      "staged": 10000,
+      "accepted": 10000,
       "rejected": 0
     }
   },

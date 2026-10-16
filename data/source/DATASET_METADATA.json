@@ -1,0 +1,16 @@
+{
+  "dataset_type": "SYNTHETIC_BENCHMARK_DATASET",
+  "notice": "NOTICE: This dataset was programmatically generated using a deterministic pseudo-random algorithm for testing, data engineering benchmarks, and pipeline load validation. It does NOT contain real customer, transaction, or proprietary business data.",
+  "seed": 42,
+  "generated_at": "2026-10-16T02:09:53.734479+00:00",
+  "record_counts": {
+    "products": 500,
+    "inventory": 500,
+    "sales": 10000
+  },
+  "catalog_summary": {
+    "categories": 8,
+    "suppliers": 30,
+    "low_stock_products_count": 71
+  }
+}

@@ -50,14 +50,32 @@ def publish_event(
         raise RuntimeError(f"Redpanda delivery failed: {delivery_errors[0]}")
 
 
-def publish_events(events: Iterable[dict[str, Any]]) -> int:
-    """Publish events sequentially; return the number acknowledged by the broker."""
+def publish_events(events: Iterable[dict[str, Any]], *, batch_flush: int = 100) -> int:
+    """Publish events with broker acknowledgement."""
     producer = build_producer()
     count = 0
+    delivery_errors: list[str] = []
+
+    def on_delivery(error: Any, message: Any) -> None:
+        if error is not None:
+            delivery_errors.append(str(error))
+
+    topic_name = os.getenv("REDPANDA_TOPIC", "sales.events")
     for event in events:
-        publish_event(producer, event)
+        payload = json.dumps(event, separators=(",", ":"), default=str).encode("utf-8")
+        producer.produce(topic_name, key=str(event.get("event_id", "")), value=payload, callback=on_delivery)
+        producer.poll(0)
         count += 1
-        logger.info("Published event_id=%s", event.get("event_id", "<missing>"))
+        if count % batch_flush == 0:
+            producer.flush(5)
+            logger.info("Published %d events so far...", count)
+
+    remaining = producer.flush(15)
+    if remaining:
+        raise TimeoutError(f"{remaining} event(s) were not delivered within timeout")
+    if delivery_errors:
+        raise RuntimeError(f"Redpanda delivery failed: {delivery_errors[0]}")
+    logger.info("Published total %d event(s) to %s", count, topic_name)
     return count
 
 
@@ -84,21 +102,34 @@ def demo_events(product_id: int = 101) -> list[dict[str, Any]]:
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--demo", action="store_true", help="publish accepted, duplicate, and invalid examples")
+    parser.add_argument("--synthetic-count", type=int, default=None, help="generate and publish N synthetic events (e.g. 1000 or 1050)")
+    parser.add_argument("--seed", type=int, default=42, help="random seed for synthetic events (default: 42)")
     parser.add_argument("--product-id", type=int, default=101, help="product used by --demo (default: 101)")
     parser.add_argument("--event-file", help="JSON file containing one event or a list of events")
     args = parser.parse_args()
     logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 
-    if args.demo:
+    if args.synthetic_count:
+        from src.streaming.generator import generate_streaming_events
+        print(f"Generating {args.synthetic_count} reproducible synthetic streaming events (seed={args.seed})...")
+        events = generate_streaming_events(
+            total_count=args.synthetic_count,
+            seed=args.seed,
+            duplicate_count=50,
+            invalid_count=50,
+        )
+    elif args.demo:
         events = demo_events(args.product_id)
     elif args.event_file:
         with open(args.event_file, "r", encoding="utf-8") as event_file:
             payload = json.load(event_file)
         events = payload if isinstance(payload, list) else [payload]
     else:
-        parser.error("provide --demo or --event-file")
+        parser.error("provide --synthetic-count, --demo, or --event-file")
 
-    print(f"Published {publish_events(events)} event(s) to {os.getenv('REDPANDA_TOPIC', 'sales.events')}")
+    topic = os.getenv("REDPANDA_TOPIC", "sales.events")
+    published = publish_events(events)
+    print(f"Published {published} event(s) to {topic}")
 
 
 if __name__ == "__main__":

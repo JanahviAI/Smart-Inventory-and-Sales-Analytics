@@ -89,17 +89,26 @@ def test_01_canonical_schema_initialization():
     assert expected_tables.issubset(existing_tables), f"Missing tables: {expected_tables - existing_tables}"
 
 
+def _count_csv_rows(file_path: Path) -> int:
+    with open(file_path, mode="r", encoding="utf-8-sig") as f:
+        return sum(1 for line in f if line.strip()) - 1
+
+
 def test_02_staging_load_clean_demo_data():
-    """Verify deterministic demo CSVs load successfully into staging tables."""
+    """Verify deterministic CSVs load successfully into staging tables."""
     run_id = "test-run-staging-001"
     summary = load_staging(run_id=run_id, landing_dir=Config.DATA_SOURCE_DIR)
 
+    expected_prod = _count_csv_rows(Config.DATA_SOURCE_DIR / "products.csv")
+    expected_inv = _count_csv_rows(Config.DATA_SOURCE_DIR / "inventory.csv")
+    expected_sales = _count_csv_rows(Config.DATA_SOURCE_DIR / "sales.csv")
+
     assert summary["status"] == "success"
     assert summary["run_id"] == run_id
-    assert summary["processed"] > 0
-    assert summary["details"]["stg_products"] == 10
-    assert summary["details"]["stg_inventory"] == 10
-    assert summary["details"]["stg_sales"] == 15
+    assert summary["processed"] == expected_prod + expected_inv + expected_sales
+    assert summary["details"]["stg_products"] == expected_prod
+    assert summary["details"]["stg_inventory"] == expected_inv
+    assert summary["details"]["stg_sales"] == expected_sales
 
 
 def test_03_clean_validation_and_trusted_upsert():
@@ -108,9 +117,14 @@ def test_03_clean_validation_and_trusted_upsert():
     load_staging(run_id=run_id, landing_dir=Config.DATA_SOURCE_DIR)
     val_summary = validate_and_clean(run_id=run_id)
 
+    expected_prod = _count_csv_rows(Config.DATA_SOURCE_DIR / "products.csv")
+    expected_inv = _count_csv_rows(Config.DATA_SOURCE_DIR / "inventory.csv")
+    expected_sales = _count_csv_rows(Config.DATA_SOURCE_DIR / "sales.csv")
+    total_expected = expected_prod + expected_inv + expected_sales
+
     assert val_summary["status"] == "success"
     assert val_summary["rejected"] == 0
-    assert val_summary["processed"] == 35  # 10 products + 10 inventory + 15 sales
+    assert val_summary["processed"] == total_expected
 
     with DatabaseManager.get_connection() as conn:
         prod_count = conn.execute(text("SELECT COUNT(*) FROM products")).scalar()
@@ -118,9 +132,9 @@ def test_03_clean_validation_and_trusted_upsert():
         sales_count = conn.execute(text("SELECT COUNT(*) FROM sales")).scalar()
         reject_count = conn.execute(text("SELECT COUNT(*) FROM rejected_records")).scalar()
 
-    assert prod_count == 10
-    assert inv_count == 10
-    assert sales_count == 15
+    assert prod_count == expected_prod
+    assert inv_count == expected_inv
+    assert sales_count == expected_sales
     assert reject_count == 0
 
 
@@ -271,10 +285,14 @@ def test_10_idempotency_repeated_batch_runs():
         final_products = conn.execute(text("SELECT COUNT(*) FROM products")).scalar()
         final_inventory = conn.execute(text("SELECT COUNT(*) FROM inventory")).scalar()
 
+    expected_sales = _count_csv_rows(Config.DATA_SOURCE_DIR / "sales.csv")
+    expected_products = _count_csv_rows(Config.DATA_SOURCE_DIR / "products.csv")
+    expected_inventory = _count_csv_rows(Config.DATA_SOURCE_DIR / "inventory.csv")
+
     # Counts must be identical (no duplicate rows created)
-    assert final_sales == initial_sales == 15
-    assert final_products == initial_products == 10
-    assert final_inventory == initial_inventory == 10
+    assert final_sales == initial_sales == expected_sales
+    assert final_products == initial_products == expected_products
+    assert final_inventory == initial_inventory == expected_inventory
 
 
 def test_11_parquet_export_and_schema_validation(tmp_path):
@@ -283,9 +301,14 @@ def test_11_parquet_export_and_schema_validation(tmp_path):
     load_staging(run_id=run_id, landing_dir=Config.DATA_SOURCE_DIR)
     validate_and_clean(run_id=run_id)
 
+    expected_sales = _count_csv_rows(Config.DATA_SOURCE_DIR / "sales.csv")
+    expected_products = _count_csv_rows(Config.DATA_SOURCE_DIR / "products.csv")
+    expected_inventory = _count_csv_rows(Config.DATA_SOURCE_DIR / "inventory.csv")
+    expected_total = expected_sales + expected_products + expected_inventory
+
     export_summary = export_clean_data(run_id=run_id, output_dir=tmp_path)
     assert export_summary["status"] == "success"
-    assert export_summary["processed"] == 35
+    assert export_summary["processed"] == expected_total
 
     # Verify Parquet files exist and can be loaded
     products_pq = tmp_path / "products_clean.parquet"
@@ -297,7 +320,7 @@ def test_11_parquet_export_and_schema_validation(tmp_path):
     assert sales_pq.exists() and sales_pq.stat().st_size > 0
 
     df_sales = pd.read_parquet(sales_pq)
-    assert len(df_sales) == 15
+    assert len(df_sales) == expected_sales
     assert "order_line_id" in df_sales.columns
     assert "total_price" in df_sales.columns
 
