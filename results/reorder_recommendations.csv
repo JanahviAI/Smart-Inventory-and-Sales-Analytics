@@ -1,0 +1,4 @@
+recommendation_key,product_id,current_stock,reorder_level,target_stock,recommended_quantity,reason
+reorder-103,103,12,30,60,48,stock 12 <= reorder level 30
+reorder-105,105,8,15,30,22,stock 8 <= reorder level 15
+reorder-107,107,5,25,50,45,stock 5 <= reorder level 25
